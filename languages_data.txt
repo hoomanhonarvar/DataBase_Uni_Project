@@ -1,0 +1,12 @@
+--
+-- Dumping data for table language
+--
+
+SET AUTOCOMMIT=0;
+INSERT INTO language VALUES (1,'English'),
+(2,'Italian'),
+(3,'Japanese'),
+(4,'Mandarin'),
+(5,'French'),
+(6,'German');
+COMMIT;
