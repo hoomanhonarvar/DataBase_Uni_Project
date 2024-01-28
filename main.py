@@ -63,6 +63,12 @@ def Customer_signUp():
     password=input("please input your password:")
 
     return f_name,l_name,email,password
+def Customer_info():
+    f_name=input("please input your first name:")
+    l_name=input("please input your last_name:")
+    password=input("please input your password:")
+
+    return f_name,l_name,password
 
 def Customer_signIn():
     email=input("please input your email:")
@@ -80,14 +86,14 @@ def customer_menu():
     print("--------------------------------------------welcome----------------------------------------")
     print("\t16. shops")
     print("\t17. view profile")
-    print("\t17. update profile")
-    print("\t18. film_list")
-    print("\t19. search")
-    print("\t20. rent information of each film")
-    print("\t21. active films of user")
-    print("\t22. available films")
-    print("\t23. request for film")
-    print("\t24. log out")
+    print("\t18. update profile")
+    print("\t19. film_list")
+    print("\t20. search")
+    print("\t21. rent information of each film")
+    print("\t22. active films of user")
+    print("\t23. available films")
+    print("\t24. request for film")
+    print("\t25. log out")
 
 
 
@@ -201,16 +207,13 @@ while(x>=0):
             print(y)
             print(len(y))
             if len(y)==1:
-                if(password!=y[6]):
+                if(password!=y[0][6]):
                     print("wrong password")
                     x=1
                 else:
                     print("you signed up with out any error!")
-                    customer_menu()
                     user_email=email
-                    x = int(input("please input your option:\t"))
-                    if x<16 or x>24:
-                        print ("invalid input")
+                    x=26
 
 
             else:
@@ -253,25 +256,39 @@ while(x>=0):
         case 14:
             #delete films from store
             storeId_list=get_inputList()
-        case 7|15|10|24:#to first_menu
+        case 7|15|10|25:#to first_menu
             user_email=''
             x=0
     #customer menu
+        case 26:
+            customer_menu()
+            x = int(input("please input your option:\t"))
+            if x < 16 or x > 24:
+                print("invalid input")
         case 16:#shops
             print('')
 
         case 17:#view profile
             cmd="SELECT * FROM customer WHERE email = %s"
             info=DB_QUERY_where(cmd,(user_email,))
-            for i in info :
-                print(i)
-            customer_menu()
-            x = int(input("please input your option:\t"))
-            if x < 16 or x > 24:
-                print("invalid input")
+            list=("id","first name","last name","email","late number","created time","password")
+            for i in range(0,len(info[0])-1) :
+                print(list[i],":",info[0][i])
+            x = 26
 
-            print('')
         case 18:#update profile
+            f_name,l_name,pwd=Customer_info()
+            sql_f = "UPDATE customers SET f_name = %s WHERE address = %s"
+            sql_l = "UPDATE customers SET l_name = %s WHERE address = %s"
+            sql_p = "UPDATE customers SET pwd = %s WHERE address = %s"
+
+            DB_update(sql_f,(f_name,email))
+            DB_update(sql_l,(l_name,email))
+            DB_update(sql_p,(pwd,email))
+            print("\tupdated")
+            x=26
+
+
 
             print('')
         case 19:#search
