@@ -75,6 +75,22 @@ def Customer_view():
 def manager_view():
     print("--------------------------------------------Manager--------------------------------------------")
 
+
+def customer_menu():
+    print("--------------------------------------------welcome----------------------------------------")
+    print("\t16. shops")
+    print("\t17. view profile")
+    print("\t17. update profile")
+    print("\t18. film_list")
+    print("\t19. search")
+    print("\t20. rent information of each film")
+    print("\t21. active films of user")
+    print("\t22. available films")
+    print("\t23. request for film")
+    print("\t24. log out")
+
+
+
 def DB_Insert(command,val):
     # try:
         dbCursor.execute(command,val)
@@ -155,6 +171,10 @@ def DB_SIGN_IN(val):
 #     cursor.execute(command)
 #     mydb.commit()
 x=0
+user_email=''
+
+
+
 while(x>=0):
     match x:
         case 0:
@@ -186,6 +206,12 @@ while(x>=0):
                     x=1
                 else:
                     print("you signed up with out any error!")
+                    customer_menu()
+                    user_email=email
+                    x = int(input("please input your option:\t"))
+                    if x<16 or x>24:
+                        print ("invalid input")
+
 
             else:
                 print('you did not register . please sign up first')
@@ -227,7 +253,37 @@ while(x>=0):
         case 14:
             #delete films from store
             storeId_list=get_inputList()
-        case 7|15|10:#to first_menu
+        case 7|15|10|24:#to first_menu
+            user_email=''
             x=0
+    #customer menu
+        case 16:#shops
+            print('')
+
+        case 17:#view profile
+            cmd="SELECT * FROM customer WHERE email = %s"
+            info=DB_QUERY_where(cmd,(user_email,))
+            for i in info :
+                print(i)
+            customer_menu()
+            x = int(input("please input your option:\t"))
+            if x < 16 or x > 24:
+                print("invalid input")
+
+            print('')
+        case 18:#update profile
+
+            print('')
+        case 19:#search
+            print('')
+        case 20:  # rent information of each film
+            print('')
+        case 21:  # active films of user
+            print('')
+        case 22:  # available films
+            print('')
+        case 23:  # request for film
+            print('')
+
 
 
