@@ -92,15 +92,14 @@ def DB_QUERY(command):
         print("an error has occurred")
         return None;
 def DB_QUERY_where(command,where):
-    # try:
+    try:
         dbCursor.execute(command,where)
         myresult = dbCursor.fetchall()
-        print(type(myresult))
         print("ok!")
         return myresult
-    # except:
-    #     print("an error has occurred")
-    #     return None;
+    except:
+        print("an error has occurred")
+        return None;
 def DB_delete(command,where):
     try:
         # sql = "DELETE FROM customers WHERE address = %s"
@@ -179,18 +178,16 @@ while(x>=0):
         case 6:#customer sign up
             # user, password = custo()
             f_name,l_name,email,pwd=Customer_signIn()
-            cmd="SELECT * FROM customer WHERE email=%s"
+            cmd="SELECT * FROM customer WHERE email=s"
             y=DB_QUERY_where(cmd,(email,))
             if y!=None:
-
                 now = datetime.now()
                 #sign_up
                 command="INSERT INTO customer (first_name, last_name,email,number_of_late,create_date,password) VALUES (%s, %s,%s,%s,%s,%s)"
                 val=(f_name,l_name,email,0,now.strftime('%Y-%m-%d %H:%M:%S'),pwd)
                 DB_Insert(command,val)
-
+                x=1         #go to customer menu
             else:
-                print(y)
                 print("this email has registered by another user!")
                 x=1
 
