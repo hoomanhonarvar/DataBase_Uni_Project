@@ -48,33 +48,6 @@ def setting():
     print("\t14.delete films from store inventory")
     print("\t15.exit")
 
-def get_inputList():
-    inputList=input("input your list (insert between each entity a comma ',') :")
-    inputList=list(inputList)
-    final_list=[]
-    for i in inputList:
-        if i!=',':
-            final_list.append(i)
-    return final_list
-def Customer_signUp():
-    f_name=input("please input your first name:")
-    l_name=input("please input your last_name:")
-    email=input("please input your email :")
-    password=input("please input your password:")
-
-    return f_name,l_name,email,password
-def Customer_info():
-    f_name=input("please input your first name:")
-    l_name=input("please input your last_name:")
-    password=input("please input your password:")
-
-    return f_name,l_name,password
-
-def Customer_signIn():
-    email=input("please input your email:")
-    password=input("please input your password:")
-    return email,password
-
 
 def Customer_view():
     print("--------------------------------------------Customer----------------------------------------")
@@ -109,6 +82,33 @@ def manager_menu():
     print("\t38. most sell")
     print("\t39. log out")
 
+
+def get_inputList():
+    inputList=input("input your list (insert between each entity a comma ',') :")
+    inputList=list(inputList)
+    final_list=[]
+    for i in inputList:
+        if i!=',':
+            final_list.append(i)
+    return final_list
+def Customer_signUp():
+    f_name=input("please input your first name:")
+    l_name=input("please input your last_name:")
+    email=input("please input your email :")
+    password=input("please input your password:")
+
+    return f_name,l_name,email,password
+def Customer_info():
+    f_name=input("please input your first name:")
+    l_name=input("please input your last_name:")
+    password=input("please input your password:")
+
+    return f_name,l_name,password
+
+def Customer_signIn():
+    email=input("please input your email:")
+    password=input("please input your password:")
+    return email,password
 
 
 def DB_Insert(command,val):
@@ -415,7 +415,7 @@ while(x>=0):
             for i in customer_list:
                 print (i)
             x=27
-        case 29:#kar dareh hanouz
+        case 29:#next
             cmd = "select * from rental "
             rentalFilm_list = DB_QUERY(cmd)
             for i in rentalFilm_list:
@@ -458,7 +458,7 @@ while(x>=0):
             store_id = DB_QUERY_where(cmd1, (user_id, user_id))
             for i in store_id[0]:
                 print(i)
-        case 34:
+        case 34:#next
             store_id=int(input("\t enter store_id"))
             print('nothing to change I am sorry maby be fixed')
         case 35:
@@ -516,7 +516,69 @@ while(x>=0):
                         case "_":
                             x = 27
         case 37:
-            print('')
-        case 38:
-            print('')
+            print("\t1.rentals in store")
+            print("\t2.rentals base on customer")
+            print("\t3.rentals base film")
+            print("\t4.exit")
+            option=int(input("\t choose option:"))
+            match option:
+                case 1:
+                    store_id_input=int(input("enter store_id:"))
+                    cmd1 = "select store_id from managre , store where manager_one_id=%s or manager_one_id=%s "
+                    store_id = DB_QUERY_where(cmd1, (user_id, user_id))
+                    print(store_id)
+                    flag=False
+                    for i in store_id:
+                        if i==store_id_input:
+                            flag=True
 
+                    if flag:
+                        cmd="select * from rental natural join payment where store_id=%s"
+                        output=DB_QUERY_where(cmd,(store_id_input,))
+                        print(output)
+                    else:
+                        print("you are not manager of this store!")
+                case 2:
+                    store_id_input = int(input("enter store_id:"))
+                    cmd1 = "select store_id from managre , store where manager_one_id=%s or manager_one_id=%s "
+                    store_id = DB_QUERY_where(cmd1, (user_id, user_id))
+                    print(store_id)
+                    flag = False
+                    for i in store_id:
+                        if i == store_id_input:
+                            flag = True
+
+                    if flag:
+                        customer=int(input("\tenter your customer id:"))
+                        cmd = "select * from rental natural join payment where store_id=%s and customer_id"
+                        output = DB_QUERY_where(cmd, (store_id_input,customer))
+                        print(output)
+                    else:
+                        print("you are not manager of this store!")
+                case 3:
+                    film_id=int(input("\t enter film_id"))
+                    cmd = "select * from rental natural join payment where film_id=%s"
+                    output = DB_QUERY_where(cmd, (film_id,))
+                    print(output)
+                case 4:
+
+
+                    x=27
+
+        case 38:#next
+            print("\t1.The most sell in category")
+            print("\t2.The most sell base on film")
+            print("\t3.The most sell base actor")
+            print("\t4.exit")
+            option = int(input("\t choose option:"))
+
+            match option:
+                case 1:
+                    print('')
+                case 2:
+                    cmd="select * from rental where "
+                    print('')
+                case 3:
+                    print('')
+                case 4:
+                    x=27
