@@ -56,7 +56,7 @@ def get_inputList():
         if i!=',':
             final_list.append(i)
     return final_list
-def Customer_signIn():
+def Customer_signUp():
     f_name=input("please input your first name:")
     l_name=input("please input your last_name:")
     email=input("please input your email :")
@@ -64,10 +64,10 @@ def Customer_signIn():
 
     return f_name,l_name,email,password
 
-def signUp_signIn():
-    username=input("please input your username")
-    password=input("please input your password")
-    return username,password
+def Customer_signIn():
+    email=input("please input your email:")
+    password=input("please input your password:")
+    return email,password
 
 
 def Customer_view():
@@ -173,13 +173,28 @@ while(x>=0):
             x=-1
             print("Thank you for your patience")
         case 5:#customer sign in
-            user,password=signUp_signIn()
+
+
+            email,password=Customer_signIn()
+            cmd = "SELECT * FROM customer WHERE email = %s"
+            y = DB_QUERY_where(cmd, (email,))
+            print(y)
+            print(len(y))
+            if len(y)==1:
+                if(password!=y[6]):
+                    print("wrong password")
+                    x=1
+                else:
+                    print("you signed up with out any error!")
+
+            else:
+                print('you did not register . please sign up first')
+                x=1
 
         case 6:#customer sign up
-            # user, password = custo()
-            f_name,l_name,email,pwd=Customer_signIn()
-            cmd="SELECT * FROM customer WHERE email=s"
-            y=DB_QUERY_where(cmd,(email,))
+            f_name,l_name,email,pwd=Customer_signUp()
+            cmd="SELECT * FROM customer WHERE email=%s"
+            y=DB_QUERY_where(cmd,(email))
             if y!=None:
                 now = datetime.now()
                 #sign_up
@@ -194,10 +209,12 @@ while(x>=0):
 
         case 8:
             #manager sign in
-            user, password = signUp_signIn()
+            # user, password = signUp_signIn()
+            print('SK')
         case 9:
             #manager sing up
-            user, password = signUp_signIn()
+            # user, password = signUp_signIn()
+            print('2')
         case 11:
             #add store
             print("fuck")
