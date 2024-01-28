@@ -404,7 +404,7 @@ while(x>=0):
             print('')
 
         case 27:# manager menu
-            Manager_signIn_signUp_Menu()
+            manager_menu()
             x = int(input("please input your option:\t"))
             if x < 27 or x > 39:
                 print("invalid input")
@@ -423,9 +423,57 @@ while(x>=0):
         case 34:
             print('')
         case 35:
-            print('')
+            film_id = []
+            cmd1 = "select * from category"
+            categ_name_list = DB_QUERY(cmd1)
+            cmd = "select * from (film inner join film_category on film.film_id=film_category.film_id)natural join category "
+            film_list = DB_QUERY(cmd)
+            for i in categ_name_list:
+                cmd2 = "select * from (film inner join film_category on film.film_id=film_category.film_id)natural join category where category_id=%s"
+                film_categ_list = DB_QUERY_where(cmd2, (i[0],))
+                for j in film_categ_list:
+                    print(i[1], ":", j[2])
+
         case 36:
-            print('')
+            print('search by actor,gener,title,language,released_year')
+            search = input("enter search field:")
+            match search:
+                case "actor":
+                    first_name = input("please input the actor's first_name:")
+                    last_name = input("please input the actor's last_name:")
+
+                    cmd = "select * from (film inner join film_actor on film.film_id=film_actor.film_id)natural join actor where first_name=%s and last_name=%s"
+                    answer = DB_QUERY_where(cmd, (first_name, last_name))
+                    print(answer)
+                    # query
+                    cmd = "select * from film where "
+                case "gener":
+                    gener = input("please input the category:")
+                    cmd = "select * from (film inner join film_category on film.film_id=film_category.film_id)natural join category where name=%s"
+                    answer = DB_QUERY_where(cmd, (gener,))
+                    print(answer)
+                case "title":
+                    title = input("please input the name:")
+                    cmd = "select * from film where title=%s"
+                    answer = DB_QUERY_where(cmd, (title,))
+                    print(answer)
+                case "language":
+                    language = input("please input the language:")
+                case "released_year":
+                    released_year = input("please input the released_year:")
+                    cmd = "select * from film where release_year=%s"
+                    answer = DB_QUERY_where(cmd, (released_year,))
+                    print(answer)
+                case "_":
+                    print("invalid input")
+                    exit = input("exit? yes/no:")
+                    match exit:
+                        case "yes":
+                            x = 27
+                        case "no":
+                            x = 36
+                        case "_":
+                            x = 27
         case 37:
             print('')
         case 38:
