@@ -279,13 +279,16 @@ while(x>=0):
             # user, password = signUp_signIn()
             f_name, l_name, email, pwd = Customer_signUp()
             username=input("\tenter your username:")
+            store_1=input("\tenter your store id1  (0 for nothing:")
+            store_2=input("\tenter your store id2  (0 for nothing):")
+
             cmd = "SELECT * FROM manager WHERE email=%s"
-            y = DB_QUERY_where(cmd, (email))
+            y = DB_QUERY_where(cmd, (email,))
             if y != None:
                 now = datetime.now()
                 # sign_up
-                command = "INSERT INTO manager (first_name, last_name,email,number_of_late,create_date,username,password) VALUES (%s, %s,%s,%s,%s,%s,%s)"
-                val = (f_name, l_name, email, 0, now.strftime('%Y-%m-%d %H:%M:%S'),username, pwd)
+                command = "INSERT INTO manager (first_name, last_name,email,username,password,store_1,store_2) VALUES (%s,%s,%s,%s,%s,%s,%s)"
+                val = (f_name, l_name, email, username, pwd,store_1,store_2)
                 DB_Insert(command, val)
                 x = 1  # go to customer menu
             else:
@@ -295,13 +298,25 @@ while(x>=0):
             print('2')
         case 11:
             #add store
-            print("fuck")
+            name=input("\tinput your store name:")
+
+
+                # try:
+            cmd = " INSERT INTO store(name)VALUES( %s)"
+            y = DB_Insert(cmd, (name,))
+            x=0
         case 12:
             #add film to a store
             storeId_list=get_inputList()
         case 13:
             #delete store
             print("fuck")
+            id=input("\tinput your store id:")
+            cmd="DELETE from store where store_id=%s"
+            DB_delete(cmd,id)
+            print("deleted!")
+
+
         case 14:
             #delete films from store
             storeId_list=get_inputList()
@@ -409,21 +424,22 @@ while(x>=0):
             x = int(input("please input your option:\t"))
             if x < 27 or x > 39:
                 print("invalid input")
-        case 28:
+        case 28:#customers info
             cmd="select * from customer where customer_id in( select customer_id from rental inner join manager on rental.manager_id=%s)"
             customer_list=DB_QUERY_where(cmd,(user_id,))
             for i in customer_list:
                 print (i)
             x=27
         case 29:#next
+            #film rental info
             cmd = "select * from rental "
             rentalFilm_list = DB_QUERY(cmd)
             for i in rentalFilm_list:
                 print(i)
             x=27
-        case 30:
-            cmd1="select store_id from managre , store where manager_one_id=%s or manager_one_id=%s "
-            store_id=DB_QUERY_where(cmd1,(user_id,user_id))
+        case 30:#active rental
+            cmd1="select store_1,store_2 from managre where manager_id=%s"
+            store_id=DB_QUERY_where(cmd1,(user_id,))
             cmd = "select * from rental  where return_date='' and request_accepted=1 and store_id in %s"
             activeFilm_list = DB_QUERY_where(cmd,(cmd1[0]))
             for i in activeFilm_list:
@@ -435,10 +451,18 @@ while(x>=0):
             for i in notReturned_rentalFilm_list:
                 print(i)
             x = 27
-        case 32:
+        case 32:#start or end rental
             print('')
+            cmd1 = "select store_1,store_2 from managre where manager_id=%s "
+            store_id = DB_QUERY_where(cmd1, (user_id,))
+
             start_end=input("enter the action : start / end:")
             if start_end=="start":
+                query="select number from "
+
+
+
+
                 rental_id=int(input("\t enter the rental request id"))
                 manager = "UPDATE rental SET manager_id = %s WHERE rental_id = %s"
                 accept = "UPDATE rental SET request_accepted = %s WHERE rental_id = %s"
@@ -454,9 +478,12 @@ while(x>=0):
             x=27
 
         case 33:
-            cmd1 = "select * from managre , store where manager_one_id=%s or manager_one_id=%s "
-            store_id = DB_QUERY_where(cmd1, (user_id, user_id))
-            for i in store_id[0]:
+            cmd1 = "select store_1,store_2 from managre where manager_id=%s"
+            store_id = DB_QUERY_where(cmd1, (user_id,))
+            cmd = "select * from store  where  store_id in %s"
+            stores = DB_QUERY_where(cmd, (store_id[0]))
+
+            for i in stores[0]:
                 print(i)
         case 34:#next
             store_id=int(input("\t enter store_id"))
@@ -523,38 +550,28 @@ while(x>=0):
             option=int(input("\t choose option:"))
             match option:
                 case 1:
-                    store_id_input=int(input("enter store_id:"))
-                    cmd1 = "select store_id from managre , store where manager_one_id=%s or manager_one_id=%s "
-                    store_id = DB_QUERY_where(cmd1, (user_id, user_id))
+
+                    store_id = DB_QUERY_where("select store_1,store_2 where manager_id=%s",(user_id,))
                     print(store_id)
                     flag=False
-                    for i in store_id:
-                        if i==store_id_input:
-                            flag=True
+
 
                     if flag:
                         cmd="select * from rental natural join payment where store_id=%s"
-                        output=DB_QUERY_where(cmd,(store_id_input,))
+                        output=DB_QUERY_where(cmd,(store_id,))
                         print(output)
-                    else:
-                        print("you are not manager of this store!")
-                case 2:
-                    store_id_input = int(input("enter store_id:"))
-                    cmd1 = "select store_id from managre , store where manager_one_id=%s or manager_one_id=%s "
-                    store_id = DB_QUERY_where(cmd1, (user_id, user_id))
-                    print(store_id)
-                    flag = False
-                    for i in store_id:
-                        if i == store_id_input:
-                            flag = True
 
-                    if flag:
-                        customer=int(input("\tenter your customer id:"))
-                        cmd = "select * from rental natural join payment where store_id=%s and customer_id"
-                        output = DB_QUERY_where(cmd, (store_id_input,customer))
-                        print(output)
-                    else:
-                        print("you are not manager of this store!")
+                case 2:
+                    store_id = DB_QUERY_where("select store_1,store_2 where manager_id=%s", (user_id,))
+
+                    print(store_id)
+
+
+                    customer=int(input("\tenter your customer id:"))
+                    cmd = "select * from rental natural join payment where store_id=%s and customer_id"
+                    output = DB_QUERY_where(cmd, (store_id,customer))
+                    print(output)
+
                 case 3:
                     film_id=int(input("\t enter film_id"))
                     cmd = "select * from rental natural join payment where film_id=%s"

@@ -36,8 +36,8 @@ CREATE TABLE store (
   manager_two_id TINYINT UNSIGNED NOT NULL,
   PRIMARY KEY  (store_id),
   UNIQUE KEY idx_unique_manager (manager_one_id,manager_two_id),
-  CONSTRAINT fk_store_manager FOREIGN KEY (manager_one_id) REFERENCES manager (manager_id) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT fk_store_manager FOREIGN KEY (manager_two_id) REFERENCES manager (manager_id) ON DELETE RESTRICT ON UPDATE CASCADE 
+  CONSTRAINT fk_store_manager_one FOREIGN KEY (manager_one_id) REFERENCES manager (manager_id) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT fk_store_manager_two FOREIGN KEY (manager_two_id) REFERENCES manager (manager_id) ON DELETE RESTRICT ON UPDATE CASCADE 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -153,7 +153,6 @@ CREATE TABLE payment (
   CONSTRAINT fk_payment_customer FOREIGN KEY (customer_id) REFERENCES customer (customer_id) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT fk_payment_manager FOREIGN KEY (manager_id) REFERENCES manager(manager_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 
 
