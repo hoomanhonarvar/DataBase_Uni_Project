@@ -307,7 +307,13 @@ while(x>=0):
             x=0
         case 12:
             #add film to a store
-            storeId_list=get_inputList()
+            film=int(input("enter the film id"))
+            number=int(input("enter the number of film "))
+            store=int(input("enter the store id "))
+            cmd="INSERT INTO inventory(store_id,film_id,number)VALUES( %s,%s,%s)"
+
+            DB_Insert(cmd,(store,film,number))
+
         case 13:
             #delete store
             print("fuck")
@@ -319,7 +325,12 @@ while(x>=0):
 
         case 14:
             #delete films from store
-            storeId_list=get_inputList()
+
+            film = int(input("enter the film id"))
+            store = int(input("enter the store id "))
+            cmd = "DELETE FROM inventory(store_id,film_id) where film_id=%s and store_id=%s"
+            DB_delete(cmd, (store, film))
+
         case 7|15|10|25|39:#to first_menu
             user_email=''
             x=0
