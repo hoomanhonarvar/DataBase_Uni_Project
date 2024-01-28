@@ -105,21 +105,21 @@ def DB_Insert(command,val):
     # except:
     #     print("an error has occurred")
 def DB_QUERY(command):
-    try:
+    # try:
         dbCursor.execute(command)
         myresult = dbCursor.fetchall()
-        print("ok!")
+        # print("ok!")
         return myresult
-    except:
+    # except:
         print("an error has occurred")
         return None;
 def DB_QUERY_where(command,where):
-    try:
+    # try:
         dbCursor.execute(command,where)
         myresult = dbCursor.fetchall()
-        print("ok!")
+        # print("ok!")
         return myresult
-    except:
+    # except:
         print("an error has occurred")
         return None;
 def DB_delete(command,where):
@@ -239,10 +239,30 @@ while(x>=0):
         case 8:
             #manager sign in
             # user, password = signUp_signIn()
+
+
+
+
+
             print('SK')
         case 9:
             #manager sing up
             # user, password = signUp_signIn()
+            f_name, l_name, email, pwd = Customer_signUp()
+            username=input("\tenter your username:")
+            cmd = "SELECT * FROM customer WHERE email=%s"
+            y = DB_QUERY_where(cmd, (email))
+            if y != None:
+                now = datetime.now()
+                # sign_up
+                command = "INSERT INTO customer (first_name, last_name,email,number_of_late,create_date,password) VALUES (%s, %s,%s,%s,%s,%s)"
+                val = (f_name, l_name, email, 0, now.strftime('%Y-%m-%d %H:%M:%S'), pwd)
+                DB_Insert(command, val)
+                x = 1  # go to customer menu
+            else:
+                print("this email has registered by another user!")
+                x = 1
+
             print('2')
         case 11:
             #add store
@@ -288,18 +308,71 @@ while(x>=0):
             print("\tupdated")
             x=26
 
+        case 19:  # film_list
+            film_id = []
+            cmd1="select * from category"
+            categ_name_list=DB_QUERY(cmd1)
+            cmd = "select * from (film inner join film_category on film.film_id=film_category.film_id)natural join category "
+            film_list = DB_QUERY(cmd)
+            for i in categ_name_list:
+                cmd2 = "select * from (film inner join film_category on film.film_id=film_category.film_id)natural join category where category_id=%s"
+                film_categ_list=DB_QUERY_where(cmd2,(i[0],))
+                for j in film_categ_list :
+                    print(i[1] ,":",j[2])
 
 
+
+
+            x=26
+        case 20:#search
+
+            print('search by actor,gener,title,language,released_year')
+            search=input("enter search field:")
+            match search:
+                case "actor":
+                    first_name=input("please input the actor's first_name:")
+                    last_name=input("please input the actor's last_name:")
+
+                    cmd = "select * from (film inner join film_actor on film.film_id=film_actor.film_id)natural join actor where first_name=%s and last_name=%s"
+                    answer = DB_QUERY_where(cmd, (first_name,last_name))
+                    print(answer)
+                    # query
+                    cmd="select * from film where "
+                case "gener":
+                    gener=input("please input the category:")
+                    cmd = "select * from (film inner join film_category on film.film_id=film_category.film_id)natural join category where name=%s"
+                    answer = DB_QUERY_where(cmd, (gener,))
+                    print(answer)
+                case "title":
+                    title = input("please input the name:")
+                    cmd = "select * from film where title=%s"
+                    answer = DB_QUERY_where(cmd, (title,))
+                    print(answer)
+                case "language":
+                    language = input("please input the language:")
+                case "released_year":
+                    released_year=input("please input the released_year:")
+                    cmd="select * from film where release_year=%s"
+                    answer=DB_QUERY_where(cmd,(released_year,))
+                    print(answer)
+                case "_":
+                    print("invalid input")
+                    exit=input("exit? yes/no:")
+                    match exit:
+                        case "yes":
+                            x=26
+                        case "no":
+                            x=20
+                        case "_":
+                            x=26
+
+        case 21:  # rent information of each film
             print('')
-        case 19:#search
+        case 22:  # active films of user
             print('')
-        case 20:  # rent information of each film
+        case 23:  # available films
             print('')
-        case 21:  # active films of user
-            print('')
-        case 22:  # available films
-            print('')
-        case 23:  # request for film
+        case 24:  # request for film
             print('')
 
 
