@@ -94,6 +94,20 @@ def customer_menu():
     print("\t23. available films")
     print("\t24. request for film")
     print("\t25. log out")
+def manager_menu():
+    print("--------------------------------------------welcome----------------------------------------")
+    print("\t28. customers info")
+    print("\t29. film rental info")
+    print("\t30. active rental")
+    print("\t31. check requests")
+    print("\t32. start or end rental")
+    print("\t33. view store info")
+    print("\t34. update store info")
+    print("\t35. film_list")
+    print("\t36. search")
+    print("\t37. payments info")
+    print("\t38. most sell")
+    print("\t39. log out")
 
 
 
@@ -213,7 +227,7 @@ while(x>=0):
                 else:
                     print("you signed up with out any error!")
                     user_email=email
-                    x=26
+                    x=26            #manager menu
 
 
             else:
@@ -238,8 +252,22 @@ while(x>=0):
 
         case 8:
             #manager sign in
-            # user, password = signUp_signIn()
-
+            email,password=Customer_signIn()
+            cmd = "SELECT * FROM manager WHERE email = %s"
+            y = DB_QUERY_where(cmd, (email,))
+            print(y)
+            print(len(y))
+            if len(y)==1:
+                if(password!=y[0][6]):
+                    print("wrong password")
+                    x=1
+                else:
+                    print("you signed up with out any error!")
+                    user_email=email
+                    x=26
+            else:
+                print('you did not register . please sign up first')
+                x=1
 
 
 
@@ -250,13 +278,13 @@ while(x>=0):
             # user, password = signUp_signIn()
             f_name, l_name, email, pwd = Customer_signUp()
             username=input("\tenter your username:")
-            cmd = "SELECT * FROM customer WHERE email=%s"
+            cmd = "SELECT * FROM manager WHERE email=%s"
             y = DB_QUERY_where(cmd, (email))
             if y != None:
                 now = datetime.now()
                 # sign_up
-                command = "INSERT INTO customer (first_name, last_name,email,number_of_late,create_date,password) VALUES (%s, %s,%s,%s,%s,%s)"
-                val = (f_name, l_name, email, 0, now.strftime('%Y-%m-%d %H:%M:%S'), pwd)
+                command = "INSERT INTO manager (first_name, last_name,email,number_of_late,create_date,username,password) VALUES (%s, %s,%s,%s,%s,%s,%s)"
+                val = (f_name, l_name, email, 0, now.strftime('%Y-%m-%d %H:%M:%S'),username, pwd)
                 DB_Insert(command, val)
                 x = 1  # go to customer menu
             else:
@@ -276,7 +304,7 @@ while(x>=0):
         case 14:
             #delete films from store
             storeId_list=get_inputList()
-        case 7|15|10|25:#to first_menu
+        case 7|15|10|25|39:#to first_menu
             user_email=''
             x=0
     #customer menu
@@ -375,5 +403,31 @@ while(x>=0):
         case 24:  # request for film
             print('')
 
-
+        case 27:# manager menu
+            Manager_signIn_signUp_Menu()
+            x = int(input("please input your option:\t"))
+            if x < 27 or x > 39:
+                print("invalid input")
+        case 28:
+            print('')
+        case 29:
+            print('')
+        case 30:
+            print('')
+        case 31:
+            print('')
+        case 32:
+            print('')
+        case 33:
+            print('')
+        case 34:
+            print('')
+        case 35:
+            print('')
+        case 36:
+            print('')
+        case 37:
+            print('')
+        case 38:
+            print('')
 
