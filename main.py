@@ -218,7 +218,6 @@ while(x>=0):
             email,password=Customer_signIn()
             cmd = "SELECT * FROM customer WHERE email = %s"
             y = DB_QUERY_where(cmd, (email,))
-            print(y)
             print(len(y))
             if len(y)==1:
                 if(password!=y[0][6]):
@@ -237,8 +236,8 @@ while(x>=0):
         case 6:#customer sign up
             f_name,l_name,email,pwd=Customer_signUp()
             cmd="SELECT * FROM customer WHERE email=%s"
-            y=DB_QUERY_where(cmd,(email))
-            if y!=None:
+            y=DB_QUERY_where(cmd,(email,))
+            if y[0]==0:
                 now = datetime.now()
                 #sign_up
                 command="INSERT INTO customer (first_name, last_name,email,number_of_late,create_date,password) VALUES (%s, %s,%s,%s,%s,%s)"
@@ -257,7 +256,7 @@ while(x>=0):
             y = DB_QUERY_where(cmd, (email,))
             print(y)
             print(len(y))
-            if len(y)==1:
+            if len(y[0])==1:
                 if(password!=y[0][6]):
                     print("wrong password")
                     x=1
@@ -268,7 +267,7 @@ while(x>=0):
                     x=26
             else:
                 print('you did not register . please sign up first')
-                x=1
+                x=2
 
 
 
@@ -284,13 +283,13 @@ while(x>=0):
 
             cmd = "SELECT * FROM manager WHERE email=%s"
             y = DB_QUERY_where(cmd, (email,))
-            if y != None:
+            if len(y) == 0:
                 now = datetime.now()
                 # sign_up
                 command = "INSERT INTO manager (first_name, last_name,email,username,password,store_1,store_2) VALUES (%s,%s,%s,%s,%s,%s,%s)"
                 val = (f_name, l_name, email, username, pwd,store_1,store_2)
                 DB_Insert(command, val)
-                x = 1  # go to customer menu
+                x =2   # go to manager menu
             else:
                 print("this email has registered by another user!")
                 x = 1
@@ -305,6 +304,7 @@ while(x>=0):
             cmd = " INSERT INTO store(name)VALUES( %s)"
             y = DB_Insert(cmd, (name,))
             x=0
+
         case 12:
             #add film to a store
             film=int(input("enter the film id"))
@@ -313,7 +313,7 @@ while(x>=0):
             cmd="INSERT INTO inventory(store_id,film_id,number)VALUES( %s,%s,%s)"
 
             DB_Insert(cmd,(store,film,number))
-
+            x=7
         case 13:
             #delete store
             print("fuck")
@@ -321,7 +321,7 @@ while(x>=0):
             cmd="DELETE from store where store_id=%s"
             DB_delete(cmd,id)
             print("deleted!")
-
+            x=7
 
         case 14:
             #delete films from store
@@ -330,6 +330,7 @@ while(x>=0):
             store = int(input("enter the store id "))
             cmd = "DELETE FROM inventory(store_id,film_id) where film_id=%s and store_id=%s"
             DB_delete(cmd, (store, film))
+            x=7
 
         case 7|15|10|25|39:#to first_menu
             user_email=''
