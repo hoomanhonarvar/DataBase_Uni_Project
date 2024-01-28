@@ -192,7 +192,7 @@ def DB_SIGN_IN(val):
 #     mydb.commit()
 x=0
 user_email=''
-
+user_id=0
 
 
 while(x>=0):
@@ -264,6 +264,7 @@ while(x>=0):
                 else:
                     print("you signed up with out any error!")
                     user_email=email
+                    user_id=y[0][0]
                     x=26
             else:
                 print('you did not register . please sign up first')
@@ -326,9 +327,9 @@ while(x>=0):
 
         case 18:#update profile
             f_name,l_name,pwd=Customer_info()
-            sql_f = "UPDATE customers SET f_name = %s WHERE address = %s"
-            sql_l = "UPDATE customers SET l_name = %s WHERE address = %s"
-            sql_p = "UPDATE customers SET pwd = %s WHERE address = %s"
+            sql_f = "UPDATE customers SET f_name = %s WHERE email = %s"
+            sql_l = "UPDATE customers SET l_name = %s WHERE email = %s"
+            sql_p = "UPDATE customers SET pwd = %s WHERE email = %s"
 
             DB_update(sql_f,(f_name,email))
             DB_update(sql_l,(l_name,email))
@@ -409,19 +410,57 @@ while(x>=0):
             if x < 27 or x > 39:
                 print("invalid input")
         case 28:
-            print('')
-        case 29:
-            print('')
+            cmd="select * from customer where customer_id in( select customer_id from rental inner join manager on rental.manager_id=%s)"
+            customer_list=DB_QUERY_where(cmd,(user_id,))
+            for i in customer_list:
+                print (i)
+            x=27
+        case 29:#kar dareh hanouz
+            cmd = "select * from rental "
+            rentalFilm_list = DB_QUERY(cmd)
+            for i in rentalFilm_list:
+                print(i)
+            x=27
         case 30:
-            print('')
-        case 31:
-            print('')
+            cmd1="select store_id from managre , store where manager_one_id=%s or manager_one_id=%s "
+            store_id=DB_QUERY_where(cmd1,(user_id,user_id))
+            cmd = "select * from rental  where return_date='' and request_accepted=1 and store_id in %s"
+            activeFilm_list = DB_QUERY_where(cmd,(cmd1[0]))
+            for i in activeFilm_list:
+                print(i)
+            x = 27
+        case 31:    #check requests
+            cmd = "select * from rental  where request_accepted=0"
+            notReturned_rentalFilm_list = DB_QUERY_where(cmd, (user_id,))
+            for i in notReturned_rentalFilm_list:
+                print(i)
+            x = 27
         case 32:
             print('')
+            start_end=input("enter the action : start / end:")
+            if start_end=="start":
+                rental_id=int(input("\t enter the rental request id"))
+                manager = "UPDATE rental SET manager_id = %s WHERE rental_id = %s"
+                accept = "UPDATE rental SET request_accepted = %s WHERE rental_id = %s"
+                date = "UPDATE rental SET return_date = %s WHERE rental_id = %s"
+                DB_update(manager, (user_id, rental_id))
+                DB_update(accept, (1, rental_id))
+                DB_update(date, (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rental_id))
+            else:
+                rental_id = int(input("\t enter the rental request id"))
+                date = "UPDATE rental SET rental_start_date = %s WHERE rental_id = %s"
+                DB_update(date, (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rental_id))
+            print("done!")
+            x=27
+
         case 33:
-            print('')
+            cmd1 = "select * from managre , store where manager_one_id=%s or manager_one_id=%s "
+            store_id = DB_QUERY_where(cmd1, (user_id, user_id))
+            for i in store_id[0]:
+                print(i)
         case 34:
-            print('')
+            store_id=int(input("\t enter store_id"))
+            print('nothing to change I am sorry maby be fixed')
         case 35:
             film_id = []
             cmd1 = "select * from category"
@@ -433,6 +472,8 @@ while(x>=0):
                 film_categ_list = DB_QUERY_where(cmd2, (i[0],))
                 for j in film_categ_list:
                     print(i[1], ":", j[2])
+
+            x=27
 
         case 36:
             print('search by actor,gener,title,language,released_year')
