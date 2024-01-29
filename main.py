@@ -1,7 +1,7 @@
 import os
 import mysql.connector
 from dotenv import load_dotenv
-from datetime import  date
+from datetime import  date,datetime
 
 #db setting
 
@@ -488,11 +488,11 @@ while(x>=0):
                 case 0|3:
                     x=26
         case 22:  # active films of user and request
-            cmd="select title,rental_start_date,rental_end_contract from rental inner join film on rental.film_id=film.film_id where customer_id=%s and return_date IS NULL "
+            cmd="select title,rental_start_date,rental_end_contract,store_id from rental inner join film on rental.film_id=film.film_id where customer_id=%s and return_date IS NULL "
             query=DB_QUERY_where(cmd,(user_id,))
             if len(query)!=0:
                 for i in query:
-                    print(query)
+                    print("title:",i[0]," start:",i[1]," end:",i[2] ,"from :",i[3])
             else :
                 print("there is nothing to show!")
             x=26
@@ -528,7 +528,7 @@ while(x>=0):
 
                     DB_Insert(command, (now,end,film_id,store_id,user_id,number_of_films))
                     print("ok")
-                    check=DB_QUERY_where("select rental_id from rental where rental_start_date=%s",(now,))
+                    check=DB_QUERY_where("select rental_id from rental where film_id=%s and customer_id=%s and rental_end_contract=%s",(film_id,user_id,end))
                     print("your rental id is :",check[0])
                     print("check it later")
 
