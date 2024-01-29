@@ -1,5 +1,6 @@
 import os
 import mysql.connector
+from dateutil import relativedelta
 from dotenv import load_dotenv
 from datetime import  date,datetime
 
@@ -65,8 +66,7 @@ def customer_menu():
     print("\t21. rent information of each film")
     print("\t22. active films of user")
     print("\t23. request for film")
-    print("\t24. available films ")
-    print("\t230.rating a film")
+    print("\t24.rating a film ")
     print("\t240.registering to being customer of store")
     print("\t25. log out")
 def manager_menu():
@@ -488,13 +488,37 @@ while(x>=0):
                 case 0|3:
                     x=26
         case 22:  # active films of user and request
-            cmd="select title,rental_start_date,rental_end_contract,store_id from rental inner join film on rental.film_id=film.film_id where customer_id=%s and return_date IS NULL "
-            query=DB_QUERY_where(cmd,(user_id,))
-            if len(query)!=0:
-                for i in query:
-                    print("title:",i[0]," start:",i[1]," end:",i[2] ,"from :",i[3])
-            else :
-                print("there is nothing to show!")
+            print("\t 1. past rentals ")
+            print("\t 2. active rentals ")
+
+            option=int(input("choose an option: "))
+            match option:
+                case 1:
+                    cmd = "select title,rental_start_date,rental_end_contract,store_id,number_of_films from rental inner join film on rental.film_id=film.film_id where customer_id=%s and return_date IS NOT NULL "
+                    query = DB_QUERY_where(cmd, (user_id,))
+
+                    if len(query) != 0:
+                        for i in query:
+                            print("title:", i[0], " start:", i[1], " end:", i[2], "number :", i[4], "from :", i[3],)
+                    else:
+                        print("there is nothing to show!")
+
+                case 2:
+                    cmd="select title,rental_start_date,rental_end_contract,store_id,number_of_films from rental inner join film on rental.film_id=film.film_id where customer_id=%s and return_date IS NULL "
+                    query=DB_QUERY_where(cmd,(user_id,))
+
+                    if len(query)!=0:
+                        for i in query:
+                            date1 = i[1]
+                            date2 = i[2]
+
+                            # Calculate the difference between the two dates
+                            difference = relativedelta.relativedelta(date2, date1)
+                            print("title:",i[0]," start:",i[1]," end:",i[2],"number :",i[4] ,"from :",i[3],"remained days: ",difference.days)
+                    else :
+                        print("there is nothing to show!")
+
+
             x=26
             print('')
         case 23:  # available films
@@ -534,16 +558,7 @@ while(x>=0):
 
                 case 3|0:
                     x=26
-        case 24:  #  active films
-            cmd ='select rental_id,rental_start_date,rental_end_contract from rental where customer_id=%s and return_date IS NULL '
-            query=DB_QUERY_where(cmd,(user_id,))
-            if len(query) != 0:
-                for i in query:
-                    print(query)
-            else:
-                print("there is nothing to show!")
-            x=26
-        case 230:
+        case 24:
             rental_id=int(input("input your rental id :"))
             rate=int(input("input your rate 1 ... 5"))
             if rate<1 or rate>5:
@@ -553,6 +568,7 @@ while(x>=0):
                 cmd="UPDATE rental SET rate = %s WHERE rental_id = %s and customer_id=%s"
                 DB_update(cmd,(rate,rental_id,user_id))
                 print("ok!")
+            x=26
 
         case 240:
 
