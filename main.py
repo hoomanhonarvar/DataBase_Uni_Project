@@ -2,7 +2,7 @@ import os
 import mysql.connector
 from dateutil import relativedelta
 from dotenv import load_dotenv
-from datetime import  date,datetime
+from datetime import  date,datetime,timedelta
 
 #db setting
 
@@ -68,6 +68,7 @@ def customer_menu():
     print("\t23. request for film")
     print("\t24.rating a film ")
     print("\t240.registering to being customer of store")
+    print("\t241.payment information")
     print("\t25. log out")
 def manager_menu():
     print("--------------------------------------------welcome----------------------------------------")
@@ -259,7 +260,7 @@ while(x>=0):
             if len(y)==1:
                 if(password!=y[0][5]):
                     print("wrong password")
-                    x=1
+                    x=2
                 else:
                     print("you signed up with out any error!")
                     user_email=email
@@ -584,6 +585,13 @@ while(x>=0):
             except:
                 print("you were registered before")
             x=26
+        case 241:
+            cmd="select * from payment where customer_id=%s"
+            output=DB_QUERY_where(cmd,(user_id,))
+            for i in output:
+                print("payment id:" ,i[0],"manager_id:" ,i[2]," rental id:" ,i[3]," amount :" ,i[4],"payment date:" ,i[5])
+
+            x=26
         case 27:# manager menu
             manager_menu()
             x = int(input("please input your option:\t"))
@@ -609,7 +617,7 @@ while(x>=0):
             rentalFilm_list = DB_QUERY_where(cmd,(user_id,user_id))
             if len(rentalFilm_list)!=0:
                 for i in rentalFilm_list:
-                    print(i)
+                    print("rental id:",i[0],"start: ",i[1],"end :",i[2],"film_id :",i[3],"store_id: ",i[4],"customer id: ",i[5],"return date: ",i[6],"manager_id: ",i[7],"numbers : ",i[8],"accepted? : ",i[9],"rate  : ",i[10])
             else:
                 print("nothin to show")
 
@@ -620,56 +628,116 @@ while(x>=0):
             activeFilm_list = DB_QUERY_where(cmd,(user_id,user_id))
             if len(activeFilm_list)!=0:
                 for i in activeFilm_list:
-                    print(i)
+                    print("rental id:",i[0],"start: ",i[1],"end :",i[2],"film_id :",i[3],"store_id: ",i[4],"customer id: ",i[5],"return date: ",i[6],"manager_id: ",i[7],"numbers : ",i[8],"accepted? : ",i[9],"rate  : ",i[10])
 
             x = 27
         case 31:    #check requests
             cmd = "select * from rental  where request_accepted=0 and (store_id =(select store_2 from manager where manager_id=%s) or store_id =(select store_1 from manager where manager_id=%s))"
             notAccepted_rentalFilm_list = DB_QUERY_where(cmd, (user_id,user_id))
             for i in notAccepted_rentalFilm_list:
-                print(i)
+                print("rental id:", i[0], "start: ", i[1], "end :", i[2], "film_id :", i[3], "store_id: ", i[4],
+                      "customer id: ", i[5], "return date: ", i[6], "manager_id: ", i[7], "numbers : ", i[8],
+                      "accepted? : ", i[9], "rate  : ", i[10])
             x = 27
         case 32:#start or end rental            //next
             print('')
-            cmd1 = "select store_1,store_2 from managre where manager_id=%s "
+            cmd1 = "select store_1,store_2 from manager where manager_id=%s "
             store_id = DB_QUERY_where(cmd1, (user_id,))
+            rental_id = int(input("\t enter the rental request id"))
+            cmd11 = "select number_of_films,film_id,store_id,customer_id,rental_start_date   ,rental_end_contract from rental where rental_id=%s"
+
+            getting_rentalInfo = DB_QUERY_where(cmd11, (rental_id,))
+
+            print(getting_rentalInfo[0][3])
+
+            cmd1 = "select number from inventory where film_id=%s and store_id=%s"
+            inventory_info = DB_QUERY_where(cmd1, (getting_rentalInfo[0][1], getting_rentalInfo[0][2]))
+
+            cmd1 = "select count(rental_id) from rental where customer_id=%s and request_accepted=1 and return_date IS NULL"
+            active_rent = DB_QUERY_where(cmd1, (getting_rentalInfo[0][3],))
+
+            cmd = "select number_of_late from customer where customer_id=%s"
+            late_number = DB_QUERY_where(cmd, (getting_rentalInfo[0][3],))
 
             start_end=input("enter the action : start / end:")
             if start_end=="start":
-                query="select number from "
+                flag=True
+                if len(inventory_info)!=0:
+                    if inventory_info[0][0]<getting_rentalInfo[0][0]:
+                        flag=False
+                        print("this amount is not available in inventory")
+                else:
+                    flag=False
+                    print("this store doesn't have this film_id")
+
+                print(active_rent[0][0])
+                if active_rent[0][0]>=3:
+                    print("customer has used the maximum number of renting ")
+                    flag=False
 
 
+                delta=getting_rentalInfo[0][5]-getting_rentalInfo[0][4]
+                if delta.days>14 or delta.days<1:
+                    flag=False
+                    print("rental time is not valid should be between 14 , 1 !")
 
+                if late_number[0][0]>10:
+                    flag=False
+                    print("customer has been late more than 10 times!")
 
-                rental_id=int(input("\t enter the rental request id"))
-                manager = "UPDATE rental SET manager_id = %s WHERE rental_id = %s"
-                accept = "UPDATE rental SET request_accepted = %s WHERE rental_id = %s"
+                if flag:
+                    manager = "UPDATE rental SET manager_id = %s WHERE rental_id = %s"
+                    accept = "UPDATE rental SET request_accepted = %s WHERE rental_id = %s"
 
-                # date = "UPDATE rental SET return_date = %s WHERE rental_id = %s"
-                DB_update(manager, (user_id, rental_id))
-                DB_update(accept, (1, rental_id))
-                number_film_id=DB_QUERY("select number_of_films,film_id from rental where rental_id=rental_id")
-                # number_of_films=DB
-                # DB_update(date, (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rental_id))
-            else:
-                rental_id = int(input("\t enter the rental request id"))
+                    # date = "UPDATE rental SET return_date = %s WHERE rental_id = %s"
+                    DB_update(manager, (user_id, rental_id))
+                    DB_update(accept, (1, rental_id))
+                    number_film_id=DB_QUERY("select number_of_films,film_id from rental where rental_id=rental_id")
+                    # number_of_films=DB
+                    # DB_update(date, (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rental_id))
+                else:
+                    print("rent is not acceptable!")
+            else:#end
                 # date = "UPDATE rental SET rental_start_date = %s WHERE rental_id = %s"
-                date = "UPDATE rental SET return_date = %s WHERE rental_id = %s"
+                now_time=date.today()
+                delta_1 = getting_rentalInfo[0][5] - getting_rentalInfo[0][4]
+                delta_2=now_time-getting_rentalInfo[0][4]
+                fee=0
+                if delta_2.days<=delta_1.days:
+                    #creating payment
+                    fee=delta_2.days*2
 
-                DB_update(date, (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), rental_id))
+                else:
+                    #creating payment
+                    fee=delta_1.days*2 + (delta_2.days-delta_1.days )*3
+
+                    #adding lates
+                    new_late_number=late_number[0][0]+1
+                    late_cmd="UPDATE customer SET Number_of_late=%s where customer_id=%s"
+                    DB_update(late_cmd,(new_late_number,getting_rentalInfo[0][3]))
+
+                cmd = "INSERT INTO payment (customer_id,manager_id, rental_id,amount,payment_date) VALUES (%s, %s,%s, %s,%s)"
+                DB_Insert(cmd,(getting_rentalInfo[0][3],user_id,rental_id,fee,now_time))
+                print('payment added')
+                date = "UPDATE rental SET return_date = %s WHERE rental_id = %s"
+                DB_update(date, (now_time, rental_id))
             print("done!")
             x=27
 
         case 33:
-            cmd1 = "select store_1,store_2 from managre where manager_id=%s"
+            cmd1 = "select store_1,store_2 from manager where manager_id=%s"
             store_id = DB_QUERY_where(cmd1, (user_id,))
-            cmd = "select * from store  where  store_id in %s"
-            stores = DB_QUERY_where(cmd, (store_id[0]))
+            cmd = "select * from store  where  store_id= %s or store_id=%s"
+            stores = DB_QUERY_where(cmd, (store_id[0][0],store_id[0][1]))
 
-            for i in stores[0]:
+            for i in stores:
                 print(i)
+            x=27
         case 34:#next
             store_id=int(input("\t enter store_id"))
+            name=input("\tenter new name")
+            cmd="UPDATE store set name=%s where store_id=%s"
+            DB_QUERY_where(cmd,(name,store_id))
             print('nothing to change I am sorry maby be fixed')
         case 35:
             film_id = []
@@ -731,30 +799,43 @@ while(x>=0):
             print("\t3.rentals base film")
             print("\t4.exit")
             option=int(input("\t choose option:"))
+            store_id = DB_QUERY_where("select store_1,store_2 from manager where manager_id=%s", (user_id,))
+
             match option:
                 case 1:
 
-                    store_id = DB_QUERY_where("select store_1,store_2 where manager_id=%s",(user_id,))
                     print(store_id)
                     flag=False
 
 
                     if flag:
-                        cmd="select * from rental natural join payment where store_id=%s"
-                        output=DB_QUERY_where(cmd,(store_id,))
-                        print(output)
+                        print("store_1: ")
+                        cmd="select * from rental inner join payment on rental.rental_id=payment.rental_id  where store_id=%s"
+                        output=DB_QUERY_where(cmd,(store_id[0][0],))
+                        for i in output:
+                            print(output)
+
+                        print("store_2: ")
+                        cmd = "select * from rental inner join payment on rental.rental_id=payment.rental_id  where store_id=%s"
+                        output = DB_QUERY_where(cmd, (store_id[0][1],))
+                        for i in output:
+                            print(output)
 
                 case 2:
-                    store_id = DB_QUERY_where("select store_1,store_2 where manager_id=%s", (user_id,))
 
-                    print(store_id)
 
 
                     customer=int(input("\tenter your customer id:"))
-                    cmd = "select * from rental natural join payment where store_id=%s and customer_id"
-                    output = DB_QUERY_where(cmd, (store_id,customer))
-                    print(output)
-
+                    number=int(input("\t in which of your stores 1 or 2?"))
+                    if number==1:
+                        cmd = "select * from rental natural join payment where store_id=%s and customer_id"
+                        output = DB_QUERY_where(cmd, (store_id[0][0],customer))
+                        for i in output:
+                            print(i)
+                    else:
+                        cmd = "select * from rental natural join payment where store_id=%s and customer_id"
+                        output = DB_QUERY_where(cmd, (store_id[0][1], customer))
+                        print(i)
                 case 3:
                     film_id=int(input("\t enter film_id"))
                     cmd = "select * from rental natural join payment where film_id=%s"
