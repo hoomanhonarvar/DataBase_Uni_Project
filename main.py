@@ -66,7 +66,7 @@ def customer_menu():
     print("\t21. rent information of each film")
     print("\t22. active films of user")
     print("\t23. request for film")
-    print("\t24.rating a film ")
+    print("\t24. rating a film ")
     print("\t240.registering to being customer of store")
     print("\t241.payment information")
     print("\t25. log out")
@@ -336,7 +336,7 @@ while(x>=0):
         case 26:
             customer_menu()
             x = int(input("please input your option:\t"))
-            if x < 16 or x > 25:
+            if x < 16 or x > 25 or x!=241 or x!=240:
                 print("invalid input")
         case 16:#shops              #next
             cmd="select store.store_id,name from store inner join store_customer on store.store_id=store_customer.store_id where customer_id=%s"
@@ -408,8 +408,9 @@ while(x>=0):
                     answer = DB_QUERY_where(cmd, (first_name,last_name))
                     if len(answer )!=0:
                         for i in answer:
-                            for j in i:
-                                print(j)
+                            # for j in i:
+                            #     print(j)
+                            print(i)
                     else:
                         print("we don't have films of this actor")
                     # query
@@ -420,8 +421,9 @@ while(x>=0):
                     answer = DB_QUERY_where(cmd, (gener,))
                     if len(answer) != 0:
                         for i in answer:
-                            for j in i:
-                                print(j)
+                            # for j in i:
+                            #     print(j)
+                            print(i)
                     else:
                         print("we don't have films in this gener")
                 case "title":
@@ -430,8 +432,9 @@ while(x>=0):
                     answer = DB_QUERY_where(cmd, (title,))
                     if len(answer) != 0:
                         for i in answer:
-                            for j in i:
-                                print(j)
+                            # for j in i:
+                            #     print(j)
+                            print(i)
                     else:
                         print("we don't have films with this title")
                 case "language":
@@ -440,8 +443,9 @@ while(x>=0):
                     answer = DB_QUERY_where(cmd, (language,))
                     if len(answer) != 0:
                         for i in answer:
-                            for j in i:
-                                print(j)
+                            # for j in i:
+                            #     print(j)
+                            print(i)
                     else:
                         print("we don't have films with this language")
 
@@ -453,8 +457,9 @@ while(x>=0):
                     answer=DB_QUERY_where(cmd,(released_year,))
                     if len(answer) != 0:
                         for i in answer:
-                            for j in i:
-                                print(j)
+                            # for j in i:
+                            #     print(j)
+                            print(i)
                     else:
                         print("we don't have films of this year")
                 case "exit":
@@ -477,12 +482,12 @@ while(x>=0):
             match option:
                 case 1:
                     print('')
-                    cmd="select  number_of_count , title from film inner join  (select count(rental_id)as number_of_count ,film_id from rental group by film_id)as t on film.film_id=t.film_id"
+                    cmd="select  number_of_count , title from film inner join  (select count(rental_id)as number_of_count ,film_id from rental where request_accepted=1 group by film_id)as t on film.film_id=t.film_id "
                     query=DB_QUERY(cmd)
                     for i in  query:
                         print(i)
                 case 2:
-                    cmd="select  rate_avg , title from film inner join  (select avg(rate)as rate_avg ,film_id from rental group by film_id)as t on film.film_id=t.film_id"
+                    cmd="select  rate_avg , title from film inner join  (select avg(rate)as rate_avg ,film_id from rental where request_accepted=1 group by film_id)as t on film.film_id=t.film_id"
                     query=DB_QUERY(cmd)
                     for i in query:
                         print(i)
@@ -599,7 +604,7 @@ while(x>=0):
                 print("invalid input")
         case 28:#customers info
             #store_1
-            cmd="select first_name,last_name,email,Number_of_late from store_customer as s inner join customer as c on s.customer_id=c.customer_id where s.store_id =(select store_1 from manager where manager_id=%s)"
+            cmd="select customer_id ,first_name,last_name,email,Number_of_late from store_customer as s inner join customer as c on s.customer_id=c.customer_id where s.store_id =(select store_1 from manager where manager_id=%s)"
             customer_list=DB_QUERY_where(cmd,(user_id,))
             print("customer of your first store")
             for i in customer_list:
@@ -755,7 +760,7 @@ while(x>=0):
 
         case 36:
             print('search by actor,gener,title,language,released_year')
-            search = input("enter search field:")
+            search = input("enter search field: or exit")
             match search:
                 case "actor":
                     first_name = input("please input the actor's first_name:")
@@ -764,6 +769,8 @@ while(x>=0):
                     cmd = "select * from (film inner join film_actor on film.film_id=film_actor.film_id)natural join actor where first_name=%s and last_name=%s"
                     answer = DB_QUERY_where(cmd, (first_name, last_name))
                     print(answer)
+                    for i in answer:
+                        print(i)
                     # query
                     cmd = "select * from film where "
                 case "gener":
@@ -783,7 +790,7 @@ while(x>=0):
                     cmd = "select * from film where release_year=%s"
                     answer = DB_QUERY_where(cmd, (released_year,))
                     print(answer)
-                case "_":
+                case "exit":
                     print("invalid input")
                     exit = input("exit? yes/no:")
                     match exit:
@@ -805,7 +812,7 @@ while(x>=0):
                 case 1:
 
                     print(store_id)
-                    flag=False
+                    flag=True
 
 
                     if flag:
@@ -813,7 +820,7 @@ while(x>=0):
                         cmd="select * from rental inner join payment on rental.rental_id=payment.rental_id  where store_id=%s"
                         output=DB_QUERY_where(cmd,(store_id[0][0],))
                         for i in output:
-                            print(output)
+                            print(i)
 
                         print("store_2: ")
                         cmd = "select * from rental inner join payment on rental.rental_id=payment.rental_id  where store_id=%s"
@@ -828,19 +835,22 @@ while(x>=0):
                     customer=int(input("\tenter your customer id:"))
                     number=int(input("\t in which of your stores 1 or 2?"))
                     if number==1:
-                        cmd = "select * from rental natural join payment where store_id=%s and customer_id"
+                        cmd = "select * from rental natural join payment where store_id=%s and customer_id=%s"
                         output = DB_QUERY_where(cmd, (store_id[0][0],customer))
                         for i in output:
                             print(i)
                     else:
-                        cmd = "select * from rental natural join payment where store_id=%s and customer_id"
+                        cmd = "select * from rental natural join payment where store_id=%s and customer_id=%s"
                         output = DB_QUERY_where(cmd, (store_id[0][1], customer))
-                        print(i)
+                        for i in output:
+                            print(i)
                 case 3:
                     film_id=int(input("\t enter film_id"))
                     cmd = "select * from rental natural join payment where film_id=%s"
                     output = DB_QUERY_where(cmd, (film_id,))
-                    print(output)
+
+                    for i in output:
+                        print(i)
                 case 4:
 
 
@@ -855,10 +865,13 @@ while(x>=0):
 
             match option:
                 case 1:
+
                     print('')
                 case 2:
-                    cmd="select * from rental where "
-                    print('')
+                     cmd = "select  count(rental_id)as number,film_id from(select * from (film_actor inner join film on film_actor.film_id=film.film_id) as p inner join actor on p.actor_id=actor_id)   group by film_id order by number desc  limit 1"
+                     query=DB_QUERY(cmd)
+                     print(query[0])
+                     print('')
                 case 3:
                     print('')
                 case 4:
